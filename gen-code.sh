@@ -31,11 +31,22 @@ NSVGS=$(ls $SVG_DIR/*.svg | wc -l | xargs)
 cat << EOF > $ELM_OUT
 module FontAwesome where
 
-{-| Use the incredible Font Awesome vector icon library without leaving the
-comfort of your Elm environment.
+{-| This module exposes $NSVGS scalable vector icons as Elm HTML
+components. If you need to use them as Elements, try the 'toElement'
+function from 'elm-html'.
 
-This library exposes $NSVGS scalable vector icons as Elm HTML components. If
-you need to use them as Elements, try the 'toElement' function from 'elm-html'.
+# Icons
+EOF
+
+for svg in $SVGS; do
+    base=$(basename $svg)
+    dash=${base%.svg}
+    name=${dash//-/_}
+    echo "@docs $name" >> $ELM_OUT
+done
+
+cat << EOF >> $ELM_OUT
+
 -}
 
 import Color exposing (Color)
