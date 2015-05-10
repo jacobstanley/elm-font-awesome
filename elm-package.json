@@ -1,5 +1,5 @@
 {
-    "version": "1.0.2",
+    "version": "1.0.3",
     "summary": "Font Awesome vector icons as Elm HTML components",
     "repository": "https://github.com/jystic/elm-font-awesome.git",
     "license": "BSD3",
