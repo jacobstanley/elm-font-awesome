@@ -4,6 +4,9 @@ module FontAwesome where
 components. If you need to use them as Elements, try the 'toElement'
 function from 'elm-html'.
 
+All icon functions expect a color and a size, which is used as both the width
+and the height.
+
 # Icons
 @docs adjust
 @docs adn
