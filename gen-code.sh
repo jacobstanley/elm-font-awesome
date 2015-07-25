@@ -68,6 +68,7 @@ for svg in $SVGS; do
     name=${dash//-/_}
 
     echo "Processing $base"
+    echo "{-|-}" >> $ELM_OUT
     echo "$name : Color -> Int -> Html" >> $ELM_OUT
 
     cat $svg \
