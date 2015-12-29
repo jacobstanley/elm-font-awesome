@@ -45,6 +45,10 @@ for svg in $SVGS; do
     base=$(basename $svg)
     dash=${base%.svg}
     name=${dash//-/_}
+    if [[ $name == [0-9]* ]];
+    then
+      name="fa_$name" # Names can't start with numbers; 500px caused a problem
+    fi
     echo "@docs $name" >> $ELM_OUT
 done
 
@@ -66,6 +70,10 @@ for svg in $SVGS; do
     base=$(basename $svg)
     dash=${base%.svg}
     name=${dash//-/_}
+    if [[ $name == [0-9]* ]];
+    then
+      name="fa_$name"
+    fi
 
     echo "Processing $base"
     echo "{-|-}" >> $ELM_OUT
