@@ -29,7 +29,7 @@ NSVGS=$(ls $SVG_DIR/*.svg | wc -l | xargs)
 
 # Generate header
 cat << EOF > $ELM_OUT
-module FontAwesome where
+module FontAwesome exposing (..)
 
 {-| This module exposes $NSVGS scalable vector icons as Elm HTML
 components. If you need to use them as Elements, try the 'toElement'
@@ -77,7 +77,7 @@ for svg in $SVGS; do
 
     echo "Processing $base"
     echo "{-|-}" >> $ELM_OUT
-    echo "$name : Color -> Int -> Html" >> $ELM_OUT
+    echo "$name : Color -> Int -> Html msg" >> $ELM_OUT
 
     cat $svg \
         | sed "s/^.*path d=/$name = icon /" \

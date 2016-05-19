@@ -1,4 +1,4 @@
-module FontAwesome.Internal (icon) where
+module FontAwesome.Internal exposing (icon)
 
 import Color exposing (Color, toRgb)
 import Html exposing (Html)
@@ -13,11 +13,11 @@ type alias ViewBox = (Int, Int, Int, Int)
 
 ------------------------------------------------------------------------
 
-icon : Path -> Color -> Size -> Html
+icon : Path -> Color -> Size -> Html msg
 icon path color size =
   fromPath color size size (0, 0, 1792, 1792) path
 
-fromPath : Color -> Int -> Int -> ViewBox -> Path -> Html
+fromPath : Color -> Int -> Int -> ViewBox -> Path -> Html msg
 fromPath color w h (x0, y0, x1, y1) pathStr =
 
   let widthStr  = toString w
