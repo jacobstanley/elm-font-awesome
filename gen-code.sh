@@ -32,8 +32,7 @@ cat << EOF > $ELM_OUT
 module FontAwesome exposing (..)
 
 {-| This module exposes $NSVGS scalable vector icons as Elm HTML
-components. If you need to use them as Elements, try the 'toElement'
-function from 'elm-html'.
+components.
 
 All icon functions expect a color and a size, which is used as both the width
 and the height.
