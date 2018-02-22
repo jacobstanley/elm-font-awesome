@@ -1,61 +1,63 @@
 #!/bin/bash -e
 
-#
-# The 'font-awesome-svg-png' program can be installed with npm:
-#
-#     npm install -g font-awesome-svg-png
-#
+FONTAWESOME_VERSION="5.0.2"
+FONTAWESOME_FOLDER="fontawesome-free-$FONTAWESOME_VERSION"
+FONTAWESOME_ARCHIVE="$FONTAWESOME_FOLDER.zip"
+FONTAWESOME_URL="https://use.fontawesome.com/releases/v$FONTAWESOME_VERSION/$FONTAWESOME_ARCHIVE"
 
 # Get directory we're running from
 ROOT=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 
 # Configure output directories
-TMP_DIR=$ROOT/tmp
-SVG_DIR=$ROOT/tmp/black/svg
-ELM_OUT=$ROOT/src/FontAwesome.elm
+TMP_DIR="$ROOT/tmp"
+SVG_DIRS="$TMP_DIR/$FONTAWESOME_FOLDER/advanced-options/raw-svg"
+ELM_OUT="$ROOT/src/FontAwesome"
 
 # Remove temp directory
 rm -rf $TMP_DIR
 
-# Generate .svgs
-font-awesome-svg-png \
-    --no-png \
-    --color black \
-    --dest $TMP_DIR \
-    1>/dev/null
+# Fetch font awesome project.
+wget "$FONTAWESOME_URL" --directory-prefix="${TMP_DIR}"
 
-SVGS=$(ls $SVG_DIR/*.svg)
-NSVGS=$(ls $SVG_DIR/*.svg | wc -l | xargs)
+# Extract it
+unzip "$TMP_DIR/$FONTAWESOME_ARCHIVE" -d "${TMP_DIR}" > /dev/null
 
-# Generate header
-cat << EOF > $ELM_OUT
-module FontAwesome exposing (..)
+# Iterate through SVG directories
+for svg_dir in $SVG_DIRS/*/; do
+    svg_type=$(basename "$svg_dir")
+    svgs=$(ls $svg_dir*.svg)
+    nsvgs=$(echo "$svgs" | wc -l | xargs)
 
-{-| This module exposes $NSVGS scalable vector icons as Elm HTML
+    module_name=$(echo "${svg_type^}")
+    elm_file="$ELM_OUT/$module_name.elm"
+
+    # Generate header
+cat <<- EOF > "$elm_file"
+module FontAwesome.$module_name exposing (..)
+
+{-|
+This module exposes $nsvgs scalable vector of category '$svg_type' as Elm HTML
 components.
 
-All icon functions expect a color and a size, which is used as both the width
-and the height.
-
-# Icons
+#Icons
 EOF
 
-for svg in $SVGS; do
-    base=$(basename $svg)
-    dash=${base%.svg}
-    name=${dash//-/_}
-    if [[ $name == [0-9]* ]];
-    then
-      name="fa_$name" # Names can't start with numbers; 500px caused a problem
-    fi
-    echo "@docs $name" >> $ELM_OUT
-done
+    # Generate doc for every icon.
+    for svg in $svgs; do
+        base=$(basename "$svg")
+        dash=${base%.svg}
+        name=${dash//-/_}
+        if [[ $name == [0-9]* ]];
+        then
+          name="fa_$name" # Names can't start with numbers; 500px caused a problem
+        fi
+        echo "@docs $name" >> "$elm_file"
+    done
 
-cat << EOF >> $ELM_OUT
+cat <<- EOF >> "$elm_file"
 
 -}
 
-import Color exposing (Color)
 import Html exposing (Html)
 
 import FontAwesome.Internal exposing (..)
@@ -64,26 +66,28 @@ import FontAwesome.Internal exposing (..)
 
 EOF
 
-# Generate icons
-for svg in $SVGS; do
-    base=$(basename $svg)
-    dash=${base%.svg}
-    name=${dash//-/_}
-    if [[ $name == [0-9]* ]];
-    then
-      name="fa_$name"
-    fi
 
-    echo "Processing $base"
-    echo "{-|-}" >> $ELM_OUT
-    echo "$name : Color -> Int -> Html msg" >> $ELM_OUT
+    # Generate icons
+    for svg in $svgs; do
+        base=$(basename "$svg")
+        dash=${base%.svg}
+        name=${dash//-/_}
+        if [[ $name == [0-9]* ]];
+        then
+          name="fa_$name"
+        fi
 
-    cat $svg \
-        | sed "s/^.*path d=/$name = icon /" \
-        | sed "s/\/\>.*$//" \
-        >> $ELM_OUT
+        path=$(xmllint "$svg" --xpath "string(//*[local-name()='path']/@d)")
 
-    echo "" >> $ELM_OUT
+        echo "Processing $module_name/$base"
+cat <<- EOF >> "$elm_file"
+{-|-}
+$name : Html msg
+$name =
+    icon "$path"
+
+EOF
+    done
 done
 
 # Remove temp directory

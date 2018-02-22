@@ -1,13 +1,16 @@
 {
-    "version": "2.0.1",
+    "version": "3.0.0",
     "summary": "Font Awesome vector icons as Elm HTML components",
     "repository": "https://github.com/jystic/elm-font-awesome.git",
     "license": "BSD3",
     "source-directories": [
-        "src"
+        "src",
+        "examples"
     ],
     "exposed-modules": [
-        "FontAwesome"
+        "FontAwesome.Regular",
+        "FontAwesome.Brands",
+        "FontAwesome.Solid"
     ],
     "dependencies": {
         "elm-lang/core": "5.0.0 <= v < 6.0.0",
